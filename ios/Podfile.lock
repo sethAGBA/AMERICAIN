@@ -1,0 +1,49 @@
+PODS:
+  - audioplayers_darwin (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - Flutter (1.0.0)
+  - path_provider_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - rive_common (0.0.1):
+    - Flutter
+  - shared_preferences_foundation (0.0.1):
+    - Flutter
+    - FlutterMacOS
+  - spine_flutter (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - audioplayers_darwin (from `.symlinks/plugins/audioplayers_darwin/darwin`)
+  - Flutter (from `Flutter`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - rive_common (from `.symlinks/plugins/rive_common/ios`)
+  - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - spine_flutter (from `.symlinks/plugins/spine_flutter/ios`)
+
+EXTERNAL SOURCES:
+  audioplayers_darwin:
+    :path: ".symlinks/plugins/audioplayers_darwin/darwin"
+  Flutter:
+    :path: Flutter
+  path_provider_foundation:
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  rive_common:
+    :path: ".symlinks/plugins/rive_common/ios"
+  shared_preferences_foundation:
+    :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+  spine_flutter:
+    :path: ".symlinks/plugins/spine_flutter/ios"
+
+SPEC CHECKSUMS:
+  audioplayers_darwin: 4f9ca89d92d3d21cec7ec580e78ca888e5fb68bd
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880
+  rive_common: dd421daaf9ae69f0125aa761dd96abd278399952
+  shared_preferences_foundation: 7036424c3d8ec98dfe75ff1667cb0cd531ec82bb
+  spine_flutter: 0c7870371230e7229e8580233ce91e8e66857678
+
+PODFILE CHECKSUM: 0f2891d2da6505002e66619a63203c2e35a3f1da
+
+COCOAPODS: 1.16.2
