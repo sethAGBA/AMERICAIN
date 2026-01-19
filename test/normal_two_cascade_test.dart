@@ -84,8 +84,8 @@ void main() {
         );
         expect(
           state.currentPlayer?.id,
-          'p2',
-          reason: 'Turn moves to Bob after Alice draws',
+          'p2', // Turn passed to Bob
+          reason: 'Turn should PASS to Bob after Alice draws final cascade',
         );
       },
     );
@@ -97,6 +97,7 @@ void main() {
           position: 0,
           hand: [
             const PlayingCard(id: 'h2', suit: Suit.hearts, rank: Rank.two),
+            const PlayingCard(id: 'h5', suit: Suit.hearts, rank: Rank.five),
           ],
         );
         final p2 = Player(
@@ -137,6 +138,16 @@ void main() {
           state.nextCascadeLevels,
           isEmpty,
           reason: 'Cascade levels cleared',
+        );
+        expect(
+          state.currentPlayer?.id,
+          'p2',
+          reason: 'Turn stays with Bob for accompaniment',
+        );
+        expect(
+          state.mustMatchSuit,
+          Suit.diamonds,
+          reason: 'Must match suit of the blocking 2',
         );
       });
     });

@@ -86,7 +86,7 @@ void main() {
       expect(
         state.currentPlayer?.id,
         'p1',
-        reason: 'Turn should move to Alice (Final draw passes turn)',
+        reason: 'Turn should PASS to Alice after final draw of cascade',
       );
     });
   });

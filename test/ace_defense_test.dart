@@ -60,19 +60,10 @@ void main() {
       );
       expect(
         state.currentPlayer?.id,
-        'p1',
-        reason: 'Alice stays current for accompaniment',
+        'p2',
+        reason: 'Turn moves to Bob after Ace block',
       );
       expect(state.discardPile.last.id, 'ah');
-
-      // Alice plays 10 of Hearts to accompany
-      state = GameLogic.playCard(state, 'p1', p1.hand[1]);
-      expect(state.currentPlayer?.id, 'p2', reason: 'Turn now moves to Bob');
-      expect(
-        state.getPenaltyFor('p2'),
-        0,
-        reason: 'Bob penalty should be 0 because Alice only played a 10',
-      );
     });
 
     test('8 blocks 2-Spades penalty cascade', () {

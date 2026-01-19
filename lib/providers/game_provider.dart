@@ -96,6 +96,7 @@ class GameNotifier extends StateNotifier<void> {
     // Deal cards to all players
     final updatedState = GameLogic.dealCards(currentState);
     ref.read(gameStateProvider.notifier).state = updatedState;
+    SoundService.shuffle();
 
     // Check if first player is bot (unlikely as host starts, but good to check)
     if (updatedState.currentPlayer?.isBot == true) {
@@ -118,11 +119,57 @@ class GameNotifier extends StateNotifier<void> {
     );
 
     ref.read(gameStateProvider.notifier).state = updatedState;
-    SoundService.playCard();
+    _playCardSound(card);
+
+    // Check if player has only one card left (if game is not over)
+    if (!updatedState.isGameOver) {
+      final currentPlayer = updatedState.players.firstWhere(
+        (p) => p.id == playerId,
+        orElse: () => updatedState.players.first,
+      );
+      if (currentPlayer.cardCount == 1) {
+        SoundService.playLastCardAlert();
+      }
+    }
 
     // Check if next player is bot
     if (!updatedState.isGameOver && updatedState.currentPlayer?.isBot == true) {
       _handleBotTurn();
+    }
+  }
+
+  /// Play the appropriate sound for the card being played
+  void _playCardSound(PlayingCard card) {
+    switch (card.rank) {
+      case Rank.joker:
+        SoundService.playJokerGlide();
+        break;
+      case Rank.ace:
+        SoundService.playAce();
+        break;
+      case Rank.two:
+        // Special case for 2 of Spades
+        if (card.suit == Suit.spades) {
+          SoundService.playTwoOfSpades();
+        } else {
+          SoundService.playTwo();
+        }
+        break;
+      case Rank.seven:
+        SoundService.playSeven();
+        break;
+      case Rank.eight:
+        SoundService.playEight();
+        break;
+      case Rank.ten:
+        SoundService.playTen();
+        break;
+      case Rank.jack:
+        SoundService.playJack();
+        break;
+      default:
+        // For all other cards, play the generic card sound
+        SoundService.playCard();
     }
   }
 
@@ -204,6 +251,7 @@ class GameNotifier extends StateNotifier<void> {
           chosenSuit: chosenSuit,
         );
         ref.read(gameStateProvider.notifier).state = updatedState;
+        _playCardSound(cardToPlay);
 
         _isHandlingBotTurn = false;
 
@@ -216,6 +264,7 @@ class GameNotifier extends StateNotifier<void> {
         // Draw card
         var updatedState = GameLogic.drawCard(currentState, bot.id);
         ref.read(gameStateProvider.notifier).state = updatedState;
+        SoundService.drawCard();
 
         _isHandlingBotTurn = false;
 

@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
 import '../providers/game_provider.dart';
-import '../widgets/suit_pattern.dart';
+import '../providers/settings_provider.dart';
+import '../services/sound_service.dart';
+import '../widgets/generic_pattern.dart';
 
 /// Lobby screen for creating or joining games
 class LobbyScreen extends ConsumerStatefulWidget {
@@ -27,6 +29,14 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen> {
     if (widget.mode == 'create') {
       _generatedGameCode = _generateGameCode();
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _playMusic();
+    });
+  }
+
+  void _playMusic() {
+    final settings = ref.read(settingsProvider);
+    SoundService.playBGM(settings.lobbyMusicPath);
   }
 
   @override
@@ -45,6 +55,28 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen> {
   Widget build(BuildContext context) {
     final gameState = ref.watch(gameStateProvider);
 
+    // Listen to music path changes
+    ref.listen(settingsProvider.select((s) => s.lobbyMusicPath), (
+      previous,
+      next,
+    ) {
+      if (next != previous) {
+        SoundService.playBGM(next);
+      }
+    });
+
+    // Listen to music enabled status
+    ref.listen(settingsProvider.select((s) => s.musicEnabled), (
+      previous,
+      next,
+    ) {
+      if (next == true && (previous == false || previous == null)) {
+        _playMusic();
+      } else if (next == false) {
+        SoundService.stopBGM();
+      }
+    });
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -59,7 +91,13 @@ class _LobbyScreenState extends ConsumerState<LobbyScreen> {
         ),
         child: Stack(
           children: [
-            const Positioned.fill(child: SuitPattern(opacity: 0.1)),
+            const Positioned.fill(
+              child: GenericPattern(
+                type: PatternType.suits,
+                opacity: 0.1,
+                crossAxisCount: 6,
+              ),
+            ),
             SafeArea(
               child: Column(
                 children: [

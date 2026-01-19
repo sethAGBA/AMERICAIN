@@ -61,8 +61,8 @@ void main() {
       );
       expect(
         nextState.currentPlayer?.id,
-        'p1',
-        reason: 'Alice stays current for accompaniment',
+        'p2',
+        reason: 'Turn moves to Bob after Ace block (No accompaniment)',
       );
     });
 

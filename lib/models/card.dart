@@ -113,10 +113,13 @@ class PlayingCard extends Equatable {
 
   /// Check if this card can be played on another card
   bool canPlayOn(PlayingCard other, {Suit? currentSuit}) {
+    // Joker acts as a universal base (any card can be played on it)
+    if (other.rank == Rank.joker) return true;
+
     // If there's a current suit override (from a previous 8), check against that
     final effectiveSuit = currentSuit ?? other.suit;
 
-    // Can play if same suit or same rank
+    // Can play if same suit or same rank or if this card is special (8 or Joker)
     return suit == effectiveSuit || rank == other.rank || isSpecial;
   }
 

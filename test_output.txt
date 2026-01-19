@@ -1,0 +1,25 @@
+00:00 +0: loading /Users/seth/development/jeu_du_8_americain/test/normal_two_cascade_test.dart                                                                                                         00:01 +0: loading /Users/seth/development/jeu_du_8_americain/test/normal_two_cascade_test.dart                                                                                                         00:01 +0: Normal 2 Cascade (2-1) Sequential 2-1 Cascade: Alice plays 2H, Bob draws 2, Alice draws 1                                                                                                    00:01 +0: Normal 2 Cascade (2-1) Sequential 2-1 Cascade: Alice plays 2H, Bob draws 2, Alice draws 1                                                                                                    
+DEBUG: [BEFORE IF] turnPasses=true, currentPlayer=p1
+DEBUG: [INSIDE IF] Passing turn to next
+00:01 +1: Normal 2 Cascade (2-1) Sequential 2-1 Cascade: Alice plays 2H, Bob draws 2, Alice draws 1                                                                                                    00:01 +1: Normal 2 Cascade (2-1) Defense Propagation (Normal 2) Bob blocks Alice's 2H with 2D                                                                                                          00:01 +1: Normal 2 Cascade (2-1) Defense Propagation (Normal 2) Bob blocks Alice's 2H with 2D                                                                                                          
+DEBUG: [BEFORE IF] turnPasses=true, currentPlayer=p1
+DEBUG: Hit 2 on 2 block. Setting turnPasses to false.
+DEBUG: [BEFORE IF] turnPasses=false, currentPlayer=p1
+After Bob blocks, currentPlayer: p1, index: 0
+00:01 +1 -1: Normal 2 Cascade (2-1) Defense Propagation (Normal 2) Bob blocks Alice's 2H with 2D [E]                                                                                                   
+  Expected: 'p2'
+    Actual: 'p1'
+     Which: is different.
+            Expected: p2
+              Actual: p1
+                       ^
+             Differ at offset 1
+  Turn stays with Bob for accompaniment
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 473:18  expect
+  test/normal_two_cascade_test.dart 144:9             main.<fn>.<fn>.<fn>
+  
+
+To run this test again: /Users/seth/development/flutter/bin/cache/dart-sdk/bin/dart test /Users/seth/development/jeu_du_8_americain/test/normal_two_cascade_test.dart -p vm --plain-name 'Normal 2 Cascade (2-1) Defense Propagation (Normal 2) Bob blocks Alice'\''s 2H with 2D'
+00:01 +1 -1: Some tests failed.                                                                                                                                                                        

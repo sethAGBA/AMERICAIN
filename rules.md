@@ -70,11 +70,6 @@ AS (1 point chacun)
 
 Bloquer avec un autre AS → ANNULE complètement l'effet, personne ne pioche
 
-Après le blocage, vous devez jouer soit :
-
-Un autre AS (de n'importe quelle couleur)
-Une carte de même couleur que l'AS que vous venez de poser
-
 
 ⚠️ Pas de cumul : le blocage arrête tout
 
@@ -87,7 +82,7 @@ Cas 1 - Blocage réussi :
 
 Alice joue un AS♥
 Bob joue un AS♠ pour bloquer → personne ne pioche
-Bob doit maintenant jouer soit un autre AS, soit une carte ♠
+Le jeu continue normalement
 
 Cas 2 - Pas de blocage :
 
@@ -97,7 +92,18 @@ Le jeu continue avec le joueur suivant
 
 
 📝 RÉSUMÉ RAPIDE MIS À JOUR
-CarteEffetPointsBlocageAs+1 carte1 ptAutre AS2 normaux+2 puis +1 cartes2 ptsAutre 2 ou 82♠+4, +2, +1 cartes4 pts2♠ ou Joker7Combiné avec carte même couleur7 pts-8🌈 Change couleur + bloque 2/AS64 pts-Valet⏭️ Saute 1 joueur11 pts-♠J⏭️ Saute 2 joueurs22 
+
+| Carte | Effet | Points | Blocage / Défense |
+| :--- | :--- | :--- | :--- |
+| **As** | +1 carte | 1 pt | Autre AS, 8 ou Joker (transfert) |
+| **2 normaux** | +2 puis +1 cartes | 2 pts | Autre 2, 8 ou Joker (transfert) |
+| **2 de Pique (♠2)** | +4, +2, +1 cartes | 4 pts | 2♠ ou Joker (transfert) |
+| **7** | Combiné (+ accompagnement) | 7 pts | - |
+| **8** | Changement de couleur | 64 pts | - |
+| **10** | Inverse le sens | 10 pts | - |
+| **Valet normal** | Saute 1 joueur | 11 pts | - |
+| **Valet de Pique** | Saute 2 joueurs | 22 pts | - |
+| **Joker** | +4 cartes ou transfert | 50 pts | Joker (transfert) |
 
 
 
@@ -161,7 +167,20 @@ Charlie doit piocher 4 cartes (la pénalité originale, pas 8)
 
 
 📝 RÉSUMÉ COMPLET FINAL
-CarteEffetPointsBlocage/DéfenseAs+1 carte1 ptAutre AS ou Joker (transfert)2 normaux+2 puis +1 cartes2 ptsAutre 2, 8, ou Joker (transfert)2♠+4, +2, +1 cartes4 pts2♠ ou Joker (transfert)7Combiné avec carte même couleur7 pts-8🌈 Change couleur + bloque 2/AS64 pts-10🔄 Inverse le sens10 pts-Valet⏭️ Saute 1 joueur11 pts-♠J⏭️ Saute 2 joueurs22 pts-Joker+4 cartes OU 🔄 transfert50 ptsJoker (transfert)Roi, DameCartes normales10 pts-3 à 9Cartes normalesValeur nominale-
+
+| Carte | Effet | Points | Blocage / Défense |
+| :--- | :--- | :--- | :--- |
+| **As** | +1 carte | 1 pt | Autre AS, 8 ou Joker (transfert) |
+| **2 normaux** | +2 (P1) puis +1 (P2) | 2 pts | Autre 2, 8 ou Joker (transfert) |
+| **2 de Pique (♠2)** | +4 (P1), +2 (P2), +1 (P3) | 4 pts | 2♠ ou Joker (transfert) |
+| **7** | Accompagnement obligatoire | 7 pts | Joker (si pas de carte) |
+| **8** | Change couleur + Bloque AS/2 | 64 pts | - |
+| **10** | Inverse le sens du jeu | 10 pts | - |
+| **Valet normal** | Saute le joueur suivant | 11 pts | - |
+| **Valet de Pique** | Saute les 2 joueurs suivants | 22 pts | - |
+| **Joker** | +4 cartes ou Transfert | 50 pts | Joker (transfert) |
+| **Roi / Dame** | Carte normale | 1 pt | - |
+| **3 à 9 (sauf 7/8)** | Carte normale | Valeur | - |
 
 
 
@@ -172,22 +191,21 @@ Après distribution des 8 cartes, on retourne la première carte de la pioche po
 Si la première carte est spéciale :
 AS retourné
 
-Le 1er joueur (celui qui commence) doit piocher 1 carte
-OU bloquer avec un AS
-OU transférer avec un Joker
+Le 1er joueur piochera automatiquement 1 carte.
+⚠️ Impossible de bloquer ou de transférer au début.
 
 2 normal (♥♦♣) retourné
 
-Le 1er joueur pioche 2 cartes
-Le 2e joueur pioche 1 carte
-Sauf blocage (autre 2 ou 8) ou transfert (Joker)
+Le 1er joueur piochera automatiquement 2 cartes.
+Le 2e joueur piochera automatiquement 1 carte.
+⚠️ Impossible de bloquer ou de transférer au début.
 
 2♠ retourné
 
-Le 1er joueur pioche 4 cartes
-Le 2e joueur pioche 2 cartes
-Le 3e joueur pioche 1 carte
-Sauf blocage (2♠) ou transfert (Joker)
+Le 1er joueur piochera automatiquement 4 cartes.
+Le 2e joueur piochera automatiquement 2 cartes.
+Le 3e joueur piochera automatiquement 1 carte.
+⚠️ Impossible de bloquer ou de transférer au début.
 
 7 retourné
 
@@ -223,8 +241,8 @@ Le 3e joueur commence la partie
 
 Joker retourné
 
-Le 1er joueur pioche 4 cartes
-OU transfère avec son Joker
+Le 1er joueur piochera automatiquement 4 cartes.
+⚠️ Impossible de transférer au début.
 
 Carte normale (3, 4, 5, 6, 9, Roi, Dame) retournée
 
@@ -349,11 +367,11 @@ Si le joueur n'a pas de carte compatible → il pioche
 
 AS retourné
 
-Le 1er joueur pioche 1 carte (sauf blocage AS ou transfert Joker)
+Le 1er joueur piochera automatiquement 1 carte.
 
 2 retourné
 
-Application normale des pénalités (sauf blocage ou transfert)
+Application automatique des sanctions (pioche forcée).
 
 7 retourné
 
@@ -395,10 +413,9 @@ Si non bloqué :
 Un seul joueur pioche : le joueur immédiatement suivant pioche 1 carte
 Ensuite le jeu continue normalement
 
-Après avoir bloqué avec un AS :
-
-Vous devez jouer une carte de même couleur que l'AS que vous avez posé
-OU jouer un autre AS
+Vous pouvez jouer un AS sur une carte compatible.
+L'effet de l'AS (+1 carte) s'applique au joueur suivant, puis votre tour se termine normalement.
+Si vous bloquez avec un AS, l'effet est annulé et votre tour se termine.
 
 
 📋 EXEMPLE COMPLET
@@ -414,9 +431,7 @@ Situation 2 - AS bloqué :
 Alice joue : AS♥
 Bob bloque avec : AS♣
 Personne ne pioche ✅
-Bob doit maintenant jouer une carte ♣ (Trèfle) OU un autre AS
-Bob joue : 7♣
-Le jeu continue...
+C'est au tour de Charlie (le jeu continue normalement)
 
 Situation 3 - AS transféré avec Joker :
 
@@ -767,3 +782,10 @@ Option C :
 En 1v1, les Valets normaux ne nécessitent pas d'accompagnement non plus
 
 Quelle option ?
+
+
+
+### sounds 
+
+
+le son faaa c'est quand on glisse avec le joker, le meme-groan.mp3 c'est quand on a perdu, metal-pipe-clang.mp3 ca c'est quand on a jouer un bloqueur ou recu un bloqueur en cours de partie, les-inconnus-vous-pouvez-repeter-la-question-.mp3 ca c'est pour les 2 , record-dj-scratch-sound-effect.mp3 ca c'est pour les 10, crickets_cJUBTZm.mp3 ca c'est pour les j, flashbang-gah-dayum.mp3 ca c'est pour le 2 de pique, your-phone-is-ringing-pick-it-up-now.mp3 ca c'est pour les as quand on pose ou recois une questionmais-moi-je-veu-faire-lamour.mp3 ca c'est quand on gagne, 

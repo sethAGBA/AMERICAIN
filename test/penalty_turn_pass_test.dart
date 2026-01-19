@@ -50,8 +50,8 @@ void main() {
       s = GameLogic.drawCard(s, 'bob');
       expect(
         s.currentPlayerIndex,
-        0,
-        reason: "Turn MUST return to Alice after Bob draws Ace penalty",
+        0, // Passed to Alice
+        reason: "Turn should PASS to Alice after Bob draws Ace penalty",
       );
     });
 
@@ -67,8 +67,8 @@ void main() {
         s = GameLogic.drawCard(s, 'bob');
         expect(
           s.currentPlayerIndex,
-          0,
-          reason: "Turn MUST return to Alice after Bob draws 2-penalty",
+          0, // Returns to Alice because she is next in cascade [1]
+          reason: "Turn MUST move to Alice for next part of cascade",
         );
         expect(
           s.pendingPenalties['alice'],
@@ -164,8 +164,8 @@ void main() {
         s = GameLogic.drawCard(s, 'charlie');
         expect(
           s.currentPlayerIndex,
-          0,
-          reason: "Turn returns to Alice after all penalties drawn",
+          0, // Passes to Alice (Index 0)
+          reason: "Turn should PASS to Alice after Charlie draws",
         );
         expect(s.pendingPenalties.isEmpty, true);
         expect(s.nextCascadeLevels, isEmpty, reason: 'Cascade complete');

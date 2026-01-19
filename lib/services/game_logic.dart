@@ -138,9 +138,7 @@ class GameLogic {
         skipCount = 1; // Skip P1
       }
     } else if (startCard.rank == Rank.joker) {
-      // Joker: P1 +4 or transfer
-      addPenalty(newPendingPenalties, getIdAt(0), 4);
-      newActiveAttackCard = startCard;
+      // Joker: No penalty at start
     } else if (startCard.rank == Rank.seven) {
       // 7: P1 must play same suit.
       newState = newState.copyWith(mustMatchSuit: startCard.suit);
@@ -177,6 +175,30 @@ class GameLogic {
       players: updatedPlayers,
     );
 
+    // --- NEW: Force resolution of start penalties (Ace, 2, Joker) ---
+    // User: "au début... ils ne peuvent ni bloquer... ni glisser ils ne peuvent que prendre la sanction"
+    while (newState.pendingPenalties.isNotEmpty ||
+        newState.nextCascadeLevels.isNotEmpty) {
+      final targetId = newState.currentPlayer?.id;
+      if (targetId == null) break;
+
+      // Check if the current player has a penalty to take
+      if (newState.getPenaltyFor(targetId) > 0) {
+        newState = drawCard(newState, targetId);
+      } else if (newState.nextCascadeLevels.isNotEmpty) {
+        // This might happen if cascade didn't target anyone yet (not typical for start card logic, but safe)
+        // In start effects, we added penalty to getIdAt(0) and cascade for later.
+        // drawCard handles moving the cascade to the next player.
+        // If current player has no penalty but cascade exists, we need to pass until someone takes it or it's resolved.
+        // But normally drawCard(penalty) triggers cascade.
+        // If we get here, it means we are in a state where a cascade is pending but no active penalty is on the current player yet.
+        // This shouldn't happen with current _applyStartCardEffects logic, but if it does, we stop to avoid infinite loop.
+        break;
+      } else {
+        break;
+      }
+    }
+
     return newState;
   }
 
@@ -191,31 +213,10 @@ class GameLogic {
     bool lastTurnWasForcedDraw = false,
     List<PlayingCard>? playerHand,
   }) {
-    // 7 - Single Suit Restriction
-    if (mustMatchSuit != null) {
-      // You can only play a card of the exact same suit
-      // OR another 7 (which overrides restriction)
-      // OR a Joker (transfer)
-      // OR an 8 (Universal Blocker/Suit Change)
-      if (cardToPlay.rank == Rank.joker) {
-        return true;
-      }
-      if (cardToPlay.rank == Rank.eight) {
-        return true;
-      } // 8 overrides 7
-      if (cardToPlay.rank == Rank.seven) {
-        return true;
-      }
-      if (cardToPlay.suit == mustMatchSuit) {
-        return true;
-      }
-      return false;
-    }
-
-    // If under penalty, must Defend
+    // 1. If under penalty, MUST Defend/Block OR Draw
+    // This check MUST come first to prevent other rules (like 7 suit restriction) from allowing invalid moves.
     if (penalty != null && penalty > 0) {
       // 2♠ Rule: Can only be blocked by another 2♠ or Joker (Transfer)
-      // Per User: "le pique de 2 ne peut pas etre bloquer par un 8"
       if (activeAttackCard?.rank == Rank.two &&
           activeAttackCard?.suit == Suit.spades) {
         if (cardToPlay.rank == Rank.joker ||
@@ -227,26 +228,16 @@ class GameLogic {
 
       // Ace Rule: Can ONLY be blocked by another Ace, an 8, or Joker (Transfer)
       if (activeAttackCard?.rank == Rank.ace) {
-        if (cardToPlay.rank == Rank.ace) {
-          return true;
-        }
-        if (cardToPlay.rank == Rank.eight) {
-          return true;
-        } // 8 Blocks Ace
-        if (cardToPlay.rank == Rank.joker) {
+        if (cardToPlay.rank == Rank.ace ||
+            cardToPlay.rank == Rank.eight ||
+            cardToPlay.rank == Rank.joker) {
           return true;
         }
         return false;
       }
 
       // Normal Defense: 2 Normal or Joker or 8
-      // Rules: "Un AS ne peut JAMAIS être bloqué par un 2"
-      // Rules: "Bloquer un 2 avec un AS" is also INTERDIT
-
-      if (cardToPlay.rank == Rank.eight) {
-        return true;
-      }
-      if (cardToPlay.rank == Rank.joker) {
+      if (cardToPlay.rank == Rank.eight || cardToPlay.rank == Rank.joker) {
         return true;
       }
 
@@ -254,11 +245,23 @@ class GameLogic {
       if (cardToPlay.rank == Rank.two && activeAttackCard?.rank != Rank.ace) {
         return true;
       }
-      if (cardToPlay.rank == Rank.ace && activeAttackCard?.rank == Rank.ace) {
-        return true; // Ace only blocks Ace
-      }
 
-      return false; // Cannot play standard cards or mismatched defense
+      return false; // Cannot play standard cards (like 7) or mismatched defense
+    }
+
+    // 2. 7 - Single Suit Restriction (Companion card)
+    if (mustMatchSuit != null) {
+      // You can only play a card of the exact same suit
+      // OR another 7 (which overrides restriction)
+      // OR a Joker (transfer/universal)
+      // OR an 8 (Universal Blocker/Suit Change)
+      if (cardToPlay.rank == Rank.joker ||
+          cardToPlay.rank == Rank.eight ||
+          cardToPlay.rank == Rank.seven ||
+          cardToPlay.suit == mustMatchSuit) {
+        return true;
+      }
+      return false;
     }
 
     // Joker always playable
@@ -299,6 +302,11 @@ class GameLogic {
 
     final player = gameState.players[playerIndex];
     if (!player.hasCard(card)) return gameState;
+
+    // Verify it's the player's turn
+    if (playerIndex != gameState.currentPlayerIndex) {
+      return gameState;
+    }
 
     final myPenalty = gameState.getPenaltyFor(playerId);
     final topCard = gameState.topCard;
@@ -363,6 +371,7 @@ class GameLogic {
     }
 
     // Defense Resolution & Clearing
+    // Defense Resolution & Clearing
     if (isDefense) {
       if (card.rank == Rank.joker) {
         // Joker Transfer (Glide)
@@ -374,21 +383,29 @@ class GameLogic {
           card.rank == Rank.eight ||
           card.rank == Rank.ace) {
         if (card.rank == Rank.ace && newActiveAttackCard?.rank == Rank.ace) {
-          // Ace on Ace -> Cancel Total + Forced Accompaniment
+          // Ace on Ace -> Cancel Total
           newPendingPenalties.clear();
           newActiveAttackCard = null;
           pendingCascade.clear();
-          turnPasses =
-              false; // User Rule: "Vous devez jouer une carte de même couleur..."
+          // Turn passes normally (Standard rule refined)
         } else if (card.rank == Rank.eight &&
             newActiveAttackCard?.rank == Rank.ace) {
           // 8 on Ace -> Cancel + Change Suit (handled later)
           newPendingPenalties.clear();
           newActiveAttackCard = null;
           pendingCascade.clear();
-        } else if ((card.rank == Rank.two || card.rank == Rank.eight) &&
-            newActiveAttackCard?.rank != Rank.ace) {
-          // 2 on 2 or 8 on 2 -> Cancel
+        } else if (card.rank == Rank.two &&
+            newActiveAttackCard?.rank == Rank.two) {
+          // 2 on 2 -> Cancel + Forced Accompaniment
+          newPendingPenalties.clear();
+          newActiveAttackCard = null;
+          pendingCascade.clear();
+          turnPasses =
+              false; // Rule: "Après le blocage, vous devez jouer soit..."
+          pendingMatchSuit = card.suit;
+        } else if (card.rank == Rank.eight &&
+            newActiveAttackCard?.rank == Rank.two) {
+          // 8 on 2 -> Cancel
           newPendingPenalties.clear();
           newActiveAttackCard = null;
           pendingCascade.clear();
@@ -442,9 +459,9 @@ class GameLogic {
     }
 
     // Normal Card behavior (terminates chain)
-    if (card.rank != Rank.seven && card.rank != Rank.jack) {
+    if (card.rank != Rank.seven && card.rank != Rank.jack && turnPasses) {
       // If I played a normal card, I am done.
-      // Clear restrictions.
+      // Clear any restriction only if turn is passing.
       pendingMatchSuit = null;
     }
 
@@ -606,8 +623,7 @@ class GameLogic {
         shouldPassTurn = true;
       } else {
         // Just a normal penalty (Ace/Joker) or end of cascade
-        // User: "le tour fini obligatoirement après la pioche"
-        // Let's set shouldPassTurn to true to fulfill "à tour de rôle" and "ends turn"
+        // Rule: After penalty draw, turn passes to the next player.
         shouldPassTurn = true;
       }
     }

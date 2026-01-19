@@ -46,12 +46,12 @@ void main() {
       // 1. Draw card for penalty
       state = GameLogic.drawCard(state, 'p1');
 
-      // EXPECT: Turn passes to Bob (à tour de rôle)
+      // EXPECT: Turn stays with Alice (so she can play her regular turn)
       expect(state.getPenaltyFor('p1'), 0);
       expect(
         state.currentPlayer?.id,
         'p2',
-        reason: 'Turn should pass after drawing penalty for Ace',
+        reason: 'Turn should PASS after drawing penalty for Ace',
       );
     });
 
@@ -95,7 +95,7 @@ void main() {
       expect(
         state.currentPlayer?.id,
         'p1',
-        reason: 'Turn should pass to Alice',
+        reason: 'Turn should PASS after drawing penalty for Ace',
       );
     });
 
@@ -113,7 +113,10 @@ void main() {
         id: 'p2',
         name: 'Bob',
         position: 1,
-        hand: [const PlayingCard(id: 'ah', suit: Suit.hearts, rank: Rank.ace)],
+        hand: [
+          const PlayingCard(id: 'ah', suit: Suit.hearts, rank: Rank.ace),
+          const PlayingCard(id: 'h2', suit: Suit.hearts, rank: Rank.two),
+        ],
       );
 
       var state = GameState(
@@ -132,9 +135,9 @@ void main() {
       // Bob plays Ace of Hearts
       state = GameLogic.playCard(state, 'p2', p2.hand[0]);
 
-      // Expect Alice to be targeted, Bob stays current for accompaniment
+      // Expect Alice to be targeted, turn passes to Alice (Standard play)
       expect(state.getPenaltyFor('p1'), 1);
-      expect(state.currentPlayer?.id, 'p2');
+      expect(state.currentPlayer?.id, 'p1');
     });
 
     test('Scenario 4: 2 Spades 4-2-1 Cascade in 1v1', () {

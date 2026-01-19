@@ -6,6 +6,8 @@ import 'package:confetti/confetti.dart';
 import '../models/card.dart';
 import '../models/game_state.dart';
 import '../providers/game_provider.dart';
+import '../providers/settings_provider.dart';
+import '../services/sound_service.dart';
 import '../widgets/game_table.dart';
 import '../widgets/hand_widget.dart';
 import '../widgets/suit_pattern.dart';
@@ -27,6 +29,15 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _confettiController = ConfettiController(
       duration: const Duration(seconds: 3),
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _playMusic();
+    });
+  }
+
+  void _playMusic() {
+    final settings = ref.read(settingsProvider);
+    // Reduce volume to 30% during gameplay so sound effects are more audible
+    SoundService.playBGM(settings.gameMusicPath, volume: 0.3);
   }
 
   @override
@@ -39,6 +50,28 @@ class _GameScreenState extends ConsumerState<GameScreen> {
   Widget build(BuildContext context) {
     final gameState = ref.watch(gameStateProvider);
     final currentPlayerId = ref.watch(currentPlayerIdProvider);
+
+    // Listen to music path changes
+    ref.listen(settingsProvider.select((s) => s.gameMusicPath), (
+      previous,
+      next,
+    ) {
+      if (next != previous) {
+        SoundService.playBGM(next);
+      }
+    });
+
+    // Listen to music enabled status
+    ref.listen(settingsProvider.select((s) => s.musicEnabled), (
+      previous,
+      next,
+    ) {
+      if (next == true && (previous == false || previous == null)) {
+        _playMusic();
+      } else if (next == false) {
+        SoundService.stopBGM();
+      }
+    });
 
     if (gameState == null || currentPlayerId == null) {
       return Scaffold(
@@ -323,6 +356,15 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     _confettiController.play();
 
     final winner = state.winner;
+    final currentPlayerId = ref.read(currentPlayerIdProvider);
+
+    // Play win/lose sound immediately
+    if (winner?.id == currentPlayerId) {
+      SoundService.playWin();
+    } else {
+      SoundService.playLose();
+    }
+
     final playersWithScores = List.from(state.players);
     playersWithScores.sort((a, b) => a.handPoints.compareTo(b.handPoints));
 

@@ -33,7 +33,7 @@ void main() {
       final startState = GameState(
         gameId: 'test',
         players: [dealer, p1],
-        deck: [],
+        deck: [const PlayingCard(id: 'd1', suit: Suit.clubs, rank: Rank.three)],
         discardPile: [aceHearts],
         hostId: 'dealer',
         currentPlayerIndex: 1, // P1 starts
@@ -42,10 +42,12 @@ void main() {
 
       final nextState = GameLogic.applyStartCardEffectsForTest(startState);
 
-      // P1 should be penalized (+1)
-      expect(nextState.getPenaltyFor('p1'), 1);
-      // P1 should still be current player (to play or defend)
-      expect(nextState.currentPlayerIndex, 1);
+      // P1 should have been penalized (drawn 1 card)
+      expect(nextState.getPenaltyFor('p1'), 0);
+      expect(nextState.players[1].hand.length, 1);
+
+      // IMPT: Turn SHOULD PASS to P2 (Dealer in this case, index 0)
+      expect(nextState.currentPlayerIndex, 0);
     });
 
     test('Jack turned: Skips P1, Dealer plays (2 Players)', () {
