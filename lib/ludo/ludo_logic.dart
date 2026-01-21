@@ -40,7 +40,8 @@ class LudoLogic {
     if (piece.state == PieceState.home) {
       if (roll != 6) return false;
       if (allPieces != null) {
-        final startPos = startPositions[piece.color]!;
+        final startPos = startPositions[piece.color];
+        if (startPos == null) return false;
         final opponentBridgeCount = allPieces
             .where(
               (p) =>
@@ -71,7 +72,7 @@ class LudoLogic {
       }
 
       // 2. Check for goal overshoot
-      int startPos = startPositions[piece.color]!;
+      final startPos = startPositions[piece.color] ?? 0;
       int relativePos =
           (piece.position - startPos + mainTrackLength) % mainTrackLength;
       int newRelativePos = relativePos + roll;
@@ -97,7 +98,7 @@ class LudoLogic {
       // Exit home
       return piece.copyWith(
         state: PieceState.track,
-        position: startPositions[piece.color]!,
+        position: startPositions[piece.color] ?? 0,
       );
     }
 
@@ -121,7 +122,7 @@ class LudoLogic {
 
     // Main Track Movement
     // This requires calculating position relative to player's start to detect goal entry
-    int startPos = startPositions[piece.color]!;
+    final startPos = startPositions[piece.color] ?? 0;
     // Calculate distance traveled so far relative to start
     // If piece.pos >= start, dist = pos - start
     // If piece.pos < start (wrapped), dist = (52 - start) + pos

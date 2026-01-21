@@ -104,7 +104,7 @@ class _AwaleLobbyScreenState extends ConsumerState<AwaleLobbyScreen> {
                           onPressed: () => context.pop(),
                         ),
                         const Text(
-                          'Awale',
+                          'Salon Awalé',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 24,
@@ -149,7 +149,7 @@ class _AwaleLobbyScreenState extends ConsumerState<AwaleLobbyScreen> {
         children: [
           // Game title
           const Text(
-            '🌰 Awale',
+            '🌰 Awalé',
             style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,

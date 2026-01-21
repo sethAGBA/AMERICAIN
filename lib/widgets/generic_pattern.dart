@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum PatternType { suits, dice, board, circles }
+enum PatternType { suits, dice, board, circles, letters }
 
 class GenericPattern extends StatelessWidget {
   final double opacity;
@@ -69,6 +69,17 @@ class GenericPattern extends StatelessWidget {
           index % 2 == 0 ? Icons.circle_outlined : Icons.circle,
           size: 20,
           color: color ?? Colors.white,
+        );
+      case PatternType.letters:
+        final letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        final char = letters[index % letters.length];
+        return Text(
+          char,
+          style: TextStyle(
+            fontSize: 24,
+            color: color ?? Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         );
     }
   }

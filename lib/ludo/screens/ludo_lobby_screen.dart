@@ -6,6 +6,8 @@ import '../models/ludo_game_state.dart';
 import '../models/ludo_player.dart';
 import '../models/ludo_piece.dart';
 import '../../widgets/generic_pattern.dart';
+import '../../services/sound_service.dart';
+import '../../providers/settings_provider.dart';
 
 class LudoLobbyScreen extends ConsumerStatefulWidget {
   const LudoLobbyScreen({super.key});
@@ -23,8 +25,45 @@ class _LudoLobbyScreenState extends ConsumerState<LudoLobbyScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _playMusic();
+    });
+  }
+
+  void _playMusic() {
+    final settings = ref.read(settingsProvider);
+    if (settings.musicEnabled) {
+      SoundService.playBGM(settings.lobbyMusicPath);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final gameState = ref.watch(ludoProvider);
+
+    // Listen to music enabled status
+    ref.listen(settingsProvider.select((s) => s.musicEnabled), (
+      previous,
+      next,
+    ) {
+      if (next == true && (previous == false || previous == null)) {
+        _playMusic();
+      } else if (next == false) {
+        SoundService.stopBGM();
+      }
+    });
+
+    // Listen to music path changes
+    ref.listen(settingsProvider.select((s) => s.lobbyMusicPath), (
+      previous,
+      next,
+    ) {
+      if (next != previous) {
+        SoundService.playBGM(next);
+      }
+    });
 
     return Scaffold(
       body: Container(

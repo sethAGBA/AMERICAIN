@@ -5,11 +5,53 @@ import '../models/game_data.dart';
 import '../providers/favorites_provider.dart';
 import '../widgets/generic_pattern.dart';
 
-class OtherGamesScreen extends StatelessWidget {
+import '../../services/sound_service.dart';
+import '../../providers/settings_provider.dart';
+
+class OtherGamesScreen extends ConsumerStatefulWidget {
   const OtherGamesScreen({super.key});
 
   @override
+  ConsumerState<OtherGamesScreen> createState() => _OtherGamesScreenState();
+}
+
+class _OtherGamesScreenState extends ConsumerState<OtherGamesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _playMusic();
+    });
+  }
+
+  void _playMusic() {
+    final settings = ref.read(settingsProvider);
+    SoundService.playBGM(settings.homeMusicPath);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Also listen to music path changes
+    ref.listen(settingsProvider.select((s) => s.homeMusicPath), (
+      previous,
+      next,
+    ) {
+      if (next != previous) {
+        SoundService.playBGM(next);
+      }
+    });
+
+    // Listen to music enabled status
+    ref.listen(settingsProvider.select((s) => s.musicEnabled), (
+      previous,
+      next,
+    ) {
+      if (next == true && (previous == false || previous == null)) {
+        _playMusic();
+      } else if (next == false) {
+        SoundService.stopBGM();
+      }
+    });
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -166,11 +208,18 @@ class _UpcomingGameCard extends ConsumerWidget {
                           color: Colors.white.withOpacity(0.15),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(
-                          game.icon,
-                          color: const Color(0xFFFFD700),
-                          size: 28,
-                        ),
+                        child: game.iconPath != null
+                            ? Image.asset(
+                                game.iconPath!,
+                                color: const Color(0xFFFFD700),
+                                width: 28,
+                                height: 28,
+                              )
+                            : Icon(
+                                game.icon,
+                                color: const Color(0xFFFFD700),
+                                size: 28,
+                              ),
                       ),
                       const Spacer(),
                       Text(

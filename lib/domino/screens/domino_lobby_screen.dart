@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/domino_provider.dart';
 import '../../widgets/generic_pattern.dart';
+import '../../services/sound_service.dart';
+import '../../providers/settings_provider.dart';
 
 class DominoLobbyScreen extends ConsumerStatefulWidget {
   const DominoLobbyScreen({super.key});
@@ -20,11 +22,41 @@ class _DominoLobbyScreenState extends ConsumerState<DominoLobbyScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(dominoProvider.notifier).setupGame(_humanCount, _botCount);
+      _playMusic();
     });
+  }
+
+  void _playMusic() {
+    final settings = ref.read(settingsProvider);
+    if (settings.musicEnabled) {
+      SoundService.playBGM(settings.lobbyMusicPath);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Listen to music enabled status
+    ref.listen(settingsProvider.select((s) => s.musicEnabled), (
+      previous,
+      next,
+    ) {
+      if (next == true && (previous == false || previous == null)) {
+        _playMusic();
+      } else if (next == false) {
+        SoundService.stopBGM();
+      }
+    });
+
+    // Listen to music path changes
+    ref.listen(settingsProvider.select((s) => s.lobbyMusicPath), (
+      previous,
+      next,
+    ) {
+      if (next != previous) {
+        SoundService.playBGM(next);
+      }
+    });
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(

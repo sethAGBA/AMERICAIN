@@ -73,6 +73,7 @@ class LudoGameNotifier extends StateNotifier<LudoGameState> {
       currentPlayerIndex: firstPlayerIndex,
       turnState: LudoTurnState.waitingForRoll,
     );
+    _turnBackupState = state; // Capture initial backup
 
     // If first player is bot, trigger roll
     if (players[firstPlayerIndex].type == PlayerType.bot) {
@@ -568,17 +569,43 @@ class LudoGameNotifier extends StateNotifier<LudoGameState> {
       selectedDiceIndices: [], // Clear selection
     );
 
-    if (newDiceValues.isEmpty) {
-      // Turn finished
-      nextTurn();
+    // Check for win condition (All pieces in Goal)
+    final allPiecesHome = updatedPlayers[playerIndex].pieces.every(
+      (p) => p.state == PieceState.goal,
+    );
+
+    List<LudoColor> newWinners = List.from(state.winners);
+    LudoTurnState newTurnState = state.turnState;
+
+    if (allPiecesHome && !newWinners.contains(player.color)) {
+      newWinners.add(player.color);
+      // For now, end game immediately when someone wins
+      // (Can be extended to allow others to fight for 2nd/3rd)
+      newTurnState = LudoTurnState.finished;
+      SoundService.playWin(); // Or generic fanfare
+    }
+
+    state = state.copyWith(
+      players: updatedPlayers,
+      diceValues: newDiceValues,
+      selectedDiceIndices: [], // Clear selection
+      winners: newWinners,
+      turnState: newTurnState,
+    );
+
+    if (newTurnState != LudoTurnState.finished) {
+      if (newDiceValues.isEmpty) {
+        // Turn finished
+        nextTurn();
+      } else {
+        _saveGame();
+        // Check if any moves remaining? if not -> nextTurn
+        if (!_canMakeAnyMove(newDiceValues)) {
+          nextTurn();
+        }
+      }
     } else {
       _saveGame();
-      // Check if any moves remaining? if not -> nextTurn
-      // Optimized: Just let player try, or auto-skip?
-      // Better to check. If stuck, skip.
-      if (!_canMakeAnyMove(newDiceValues)) {
-        nextTurn();
-      }
     }
   }
 
@@ -932,18 +959,28 @@ class LudoGameNotifier extends StateNotifier<LudoGameState> {
     }
   }
 
+  LudoGameState? _turnBackupState;
+
+  void undoTurn() {
+    if (_turnBackupState != null) {
+      state = _turnBackupState!;
+      _saveGame();
+    }
+  }
+
+  // ... existing methods ...
+
   void nextTurn() {
     int nextIndex = (state.currentPlayerIndex + 1) % 4;
 
     // Skip inactive players (PlayerType.none)
-    // Safety break to prevent infinite loop if all are none (should not happen)
     int attempts = 0;
     while (state.players[nextIndex].type == PlayerType.none && attempts < 4) {
       nextIndex = (nextIndex + 1) % 4;
       attempts++;
     }
 
-    // Reset capture status for ALL pieces at start of turn
+    // Reset capture status
     final updatedPlayers = state.players.map((player) {
       return player.copyWith(
         pieces: player.pieces
@@ -952,13 +989,16 @@ class LudoGameNotifier extends StateNotifier<LudoGameState> {
       );
     }).toList();
 
-    state = state.copyWith(
+    final nextState = state.copyWith(
       currentPlayerIndex: nextIndex,
       diceValues: [],
       selectedDiceIndices: [],
       turnState: LudoTurnState.waitingForRoll,
       players: updatedPlayers,
     );
+
+    state = nextState;
+    _turnBackupState = nextState; // Capture backup at start of turn
 
     _saveGame();
 

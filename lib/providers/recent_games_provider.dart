@@ -9,7 +9,7 @@ final recentGamesProvider =
 
 class RecentGamesNotifier extends StateNotifier<List<String>> {
   static const String _storageKey = 'recent_games';
-  static const int _maxItems = 5;
+  static const int _maxItems = 3;
 
   RecentGamesNotifier() : super([]) {
     _loadRecentGames();

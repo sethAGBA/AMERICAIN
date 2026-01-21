@@ -168,8 +168,10 @@ class DominoNotifier extends StateNotifier<DominoState> {
 
   bool canPlay(DominoPiece piece) {
     if (state.board.isEmpty) return true;
-    return piece.contains(state.leftValue!) ||
-        piece.contains(state.rightValue!);
+    final lv = state.leftValue;
+    final rv = state.rightValue;
+    if (lv == null || rv == null) return true;
+    return piece.contains(lv) || piece.contains(rv);
   }
 
   void playPiece(DominoPiece piece, {bool atLeft = true}) {
@@ -202,27 +204,35 @@ class DominoNotifier extends StateNotifier<DominoState> {
     int? newRight = state.rightValue;
     List<DominoPiece> newBoard = List.from(state.board);
 
-    if (atLeft && piece.contains(state.leftValue!)) {
+    int? currentLeft = state.leftValue;
+    int? currentRight = state.rightValue;
+
+    if (currentLeft == null || currentRight == null) {
+      // Should not happen if board is not empty, but safety first
+      return;
+    }
+
+    if (atLeft && piece.contains(currentLeft)) {
       // If sides don't match, we "flip" it conceptually by adjusting the new end value
-      int matchValue = state.leftValue!;
+      int matchValue = currentLeft;
       int otherValue = piece.otherSide(matchValue);
       newLeft = otherValue;
       newBoard.insert(0, piece);
       played = true;
-    } else if (!atLeft && piece.contains(state.rightValue!)) {
-      int matchValue = state.rightValue!;
+    } else if (!atLeft && piece.contains(currentRight)) {
+      int matchValue = currentRight;
       int otherValue = piece.otherSide(matchValue);
       newRight = otherValue;
       newBoard.add(piece);
       played = true;
     } else {
       // If requested side failed, try the other side automatically if valid
-      if (piece.contains(state.leftValue!)) {
-        newLeft = piece.otherSide(state.leftValue!);
+      if (piece.contains(currentLeft)) {
+        newLeft = piece.otherSide(currentLeft);
         newBoard.insert(0, piece);
         played = true;
-      } else if (piece.contains(state.rightValue!)) {
-        newRight = piece.otherSide(state.rightValue!);
+      } else if (piece.contains(currentRight)) {
+        newRight = piece.otherSide(currentRight);
         newBoard.add(piece);
         played = true;
       }

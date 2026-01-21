@@ -355,7 +355,7 @@ class _DominoGameScreenState extends ConsumerState<DominoGameScreen> {
           final piece = state.board[index];
           // Determine orientation logic simplified for MVP
           // In a real app we'd rotate pieces to match values
-          return _DominoWidget(piece: piece);
+          return Center(child: _DominoWidget(piece: piece));
         },
       ),
     );
@@ -668,9 +668,15 @@ class _DominoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Fix: Use 2:1 ratio.
+    // User requested larger size (matching hand).
+    // Using 35x70 provides a good size (bigger than 28x56, close to original 40x80 equivalent area)
+    const double shortSide = 35;
+    const double longSide = 70; // 2 * shortSide // 2:1 ratio
+
     return Container(
-      width: isVertical ? 40 : 60,
-      height: isVertical ? 70 : 40,
+      width: isVertical ? shortSide : longSide,
+      height: isVertical ? longSide : shortSide,
       margin: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -719,8 +725,8 @@ class _Dots extends StatelessWidget {
       runSpacing: 2,
       children: List.generate(value, (index) {
         return Container(
-          width: 6,
-          height: 6,
+          width: 5,
+          height: 5,
           decoration: const BoxDecoration(
             color: Colors.black,
             shape: BoxShape.circle,

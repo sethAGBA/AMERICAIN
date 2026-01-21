@@ -40,7 +40,12 @@ class LudoGameState {
     );
   }
 
-  LudoPlayer get currentPlayer => players[currentPlayerIndex];
+  LudoPlayer get currentPlayer {
+    if (players.isEmpty) {
+      return LudoPlayer.initial(LudoColor.red, PlayerType.human);
+    }
+    return players[currentPlayerIndex % players.length];
+  }
 
   LudoGameState copyWith({
     List<LudoPlayer>? players,

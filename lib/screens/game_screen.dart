@@ -11,6 +11,7 @@ import '../services/sound_service.dart';
 import '../widgets/game_table.dart';
 import '../widgets/hand_widget.dart';
 import '../widgets/suit_pattern.dart';
+import '../providers/stats_provider.dart';
 
 /// Main game screen
 class GameScreen extends ConsumerStatefulWidget {
@@ -361,8 +362,10 @@ class _GameScreenState extends ConsumerState<GameScreen> {
     // Play win/lose sound immediately
     if (winner?.id == currentPlayerId) {
       SoundService.playWin();
+      ref.read(statsControllerProvider.notifier).recordWin('americain');
     } else {
       SoundService.playLose();
+      ref.read(statsControllerProvider.notifier).recordLoss('americain');
     }
 
     final playersWithScores = List.from(state.players);

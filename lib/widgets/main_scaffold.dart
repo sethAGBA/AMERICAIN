@@ -45,7 +45,7 @@ class MainScaffold extends StatelessWidget {
             NavigationDestination(
               icon: Icon(Icons.style_outlined),
               selectedIcon: Icon(Icons.style, color: Color(0xFF1B5E20)),
-              label: 'Classic',
+              label: 'Américain',
             ),
             NavigationDestination(
               icon: Icon(Icons.casino_outlined),

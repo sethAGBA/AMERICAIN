@@ -6,13 +6,56 @@ import '../providers/favorites_provider.dart';
 import '../providers/recent_games_provider.dart';
 import '../widgets/generic_pattern.dart';
 
-class FavoritesScreen extends ConsumerWidget {
+import '../../services/sound_service.dart';
+import '../../providers/settings_provider.dart';
+
+class FavoritesScreen extends ConsumerStatefulWidget {
   const FavoritesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FavoritesScreen> createState() => _FavoritesScreenState();
+}
+
+class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _playMusic();
+    });
+  }
+
+  void _playMusic() {
+    final settings = ref.read(settingsProvider);
+    SoundService.playBGM(settings.homeMusicPath);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final favoriteIds = ref.watch(favoritesProvider);
     final recentIds = ref.watch(recentGamesProvider);
+
+    // Also listen to music path changes
+    ref.listen(settingsProvider.select((s) => s.homeMusicPath), (
+      previous,
+      next,
+    ) {
+      if (next != previous) {
+        SoundService.playBGM(next);
+      }
+    });
+
+    // Listen to music enabled status
+    ref.listen(settingsProvider.select((s) => s.musicEnabled), (
+      previous,
+      next,
+    ) {
+      if (next == true && (previous == false || previous == null)) {
+        _playMusic();
+      } else if (next == false) {
+        SoundService.stopBGM();
+      }
+    });
 
     return Scaffold(
       body: Container(
@@ -42,27 +85,33 @@ class FavoritesScreen extends ConsumerWidget {
                   const SliverToBoxAdapter(
                     child: Padding(
                       padding: EdgeInsets.all(24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'MES FAVORIS',
-                            style: TextStyle(
-                              color: Color(0xFFFFD700),
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 3,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'MES FAVORIS',
+                                style: TextStyle(
+                                  color: Color(0xFFFFD700),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 3,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'Vos Jeux Préférés',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Vos Jeux Préférés',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                          const _ProfileButton(),
                         ],
                       ),
                     ),
@@ -365,6 +414,25 @@ class FavoriteGameCard extends ConsumerWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ProfileButton extends StatelessWidget {
+  const _ProfileButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.1),
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+      ),
+      child: IconButton(
+        icon: const Icon(Icons.person, color: Colors.white),
+        onPressed: () => context.push('/profile'),
       ),
     );
   }

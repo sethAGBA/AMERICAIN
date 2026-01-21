@@ -48,6 +48,10 @@ class SoundService {
   static const String sfxDominoDraw = 'flipcard-91468.mp3';
   static const String sfxDominoShuffle = 'riffle-card-shuffle-104313.mp3';
   static const String bgmDomino = 'casino-jazz-317385.mp3';
+  static const String bgmDames = 'las-vegas-las-vegas-casino-music-385955.mp3';
+  static const String bgmMorpion = 'casino-164235.mp3';
+
+  static String? _currentBGM;
 
   static bool _soundEnabled = true;
   static bool _musicEnabled = true;
@@ -84,9 +88,18 @@ class SoundService {
   static Future<void> playBGM(String fileName, {double? volume}) async {
     if (!_musicEnabled) return;
     try {
+      if (FlameAudio.bgm.isPlaying && _currentBGM == fileName) {
+        // If same track is playing, just update volume if needed
+        final effectiveVolume = (volume ?? 1.0) * _musicVolume;
+        await FlameAudio.bgm.audioPlayer.setVolume(effectiveVolume);
+        return;
+      }
+
       if (FlameAudio.bgm.isPlaying) {
         await FlameAudio.bgm.stop();
       }
+
+      _currentBGM = fileName;
       // Use provided volume override (e.g. for game screen dimming) or global setting
       final effectiveVolume = (volume ?? 1.0) * _musicVolume;
       await FlameAudio.bgm.play(fileName, volume: effectiveVolume);
@@ -102,6 +115,7 @@ class SoundService {
 
   static Future<void> stopBGM() async {
     try {
+      _currentBGM = null;
       await FlameAudio.bgm.stop();
     } catch (_) {}
   }
@@ -317,6 +331,15 @@ class SoundService {
     if (!_soundEnabled) return;
     try {
       await FlameAudio.play(sfxDominoShuffle, volume: _soundVolume);
+    } catch (_) {}
+  }
+
+  // Puissance 4 specific methods
+  static Future<void> playP4Drop() async {
+    if (!_soundEnabled) return;
+    try {
+      // Reuse generic play sound or distinct one if available
+      await FlameAudio.play(sfxPlay, volume: _soundVolume);
     } catch (_) {}
   }
 }

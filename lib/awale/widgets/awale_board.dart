@@ -29,6 +29,18 @@ class AwaleBoard extends ConsumerWidget {
         ? AwaleLogic.getAvailableMoves(gameState)
         : <int>[];
 
+    // Identify players by side to keep them static
+    // Top player (Side.top) is usually on the Left in this column layout (pits 0-5)
+    // Bottom player (Side.bottom) is usually on the Right (pits 6-11)
+    final topPlayer = gameState.players.firstWhere(
+      (p) => p.side == PlayerSide.top,
+      orElse: () => gameState.players[1],
+    );
+    final bottomPlayer = gameState.players.firstWhere(
+      (p) => p.side == PlayerSide.bottom,
+      orElse: () => gameState.players[0],
+    );
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -66,18 +78,18 @@ class AwaleBoard extends ConsumerWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Opponent's score area (left side)
+            // Top Player (Left side) area
             _buildScoreArea(
-              gameState.opponentPlayer,
-              gameState.captures[gameState.opponentPlayer.id] ?? 0,
+              topPlayer,
+              gameState.captures[topPlayer.id] ?? 0,
               isOpponent: true,
               isHorizontal: true,
-              isCurrentTurn: currentPlayer.id == gameState.opponentPlayer.id,
-              isPlayerTurn: currentPlayerId == gameState.opponentPlayer.id,
+              isCurrentTurn: currentPlayer.id == topPlayer.id,
+              isPlayerTurn: currentPlayerId == topPlayer.id,
             ),
             const SizedBox(width: 8),
 
-            // Left column (opponent's pits: 5, 4, 3, 2, 1, 0)
+            // Left column (Top Player's pits: 5, 4, 3, 2, 1, 0)
             _buildPitColumn(
               gameState,
               [5, 4, 3, 2, 1, 0],
@@ -106,7 +118,7 @@ class AwaleBoard extends ConsumerWidget {
 
             const SizedBox(width: 12),
 
-            // Right column (player's pits: 6, 7, 8, 9, 10, 11)
+            // Right column (Bottom Player's pits: 6, 7, 8, 9, 10, 11)
             _buildPitColumn(
               gameState,
               [6, 7, 8, 9, 10, 11],
@@ -117,27 +129,14 @@ class AwaleBoard extends ConsumerWidget {
 
             const SizedBox(width: 8),
 
-            // Current player's score area (right side)
+            // Bottom Player (Right side) area
             _buildScoreArea(
-              gameState.currentPlayer.id == currentPlayerId
-                  ? gameState.currentPlayer
-                  : gameState.opponentPlayer,
-              gameState.captures[gameState.currentPlayer.id == currentPlayerId
-                      ? gameState.currentPlayer.id
-                      : gameState.opponentPlayer.id] ??
-                  0,
+              bottomPlayer,
+              gameState.captures[bottomPlayer.id] ?? 0,
               isOpponent: false,
               isHorizontal: true,
-              isCurrentTurn:
-                  currentPlayer.id ==
-                  (gameState.currentPlayer.id == currentPlayerId
-                      ? gameState.currentPlayer.id
-                      : gameState.opponentPlayer.id),
-              isPlayerTurn:
-                  currentPlayerId ==
-                  (gameState.currentPlayer.id == currentPlayerId
-                      ? gameState.currentPlayer.id
-                      : gameState.opponentPlayer.id),
+              isCurrentTurn: currentPlayer.id == bottomPlayer.id,
+              isPlayerTurn: currentPlayerId == bottomPlayer.id,
             ),
           ],
         ),

@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../providers/morpion_provider.dart';
 import '../models/morpion_state.dart';
 import '../../widgets/generic_pattern.dart';
+import '../../services/sound_service.dart';
+import '../../providers/settings_provider.dart';
 
 class MorpionLobbyScreen extends ConsumerStatefulWidget {
   const MorpionLobbyScreen({super.key});
@@ -17,7 +19,44 @@ class _MorpionLobbyScreenState extends ConsumerState<MorpionLobbyScreen> {
   MorpionSymbol _humanSymbol = MorpionSymbol.x;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _playMusic();
+    });
+  }
+
+  void _playMusic() {
+    final settings = ref.read(settingsProvider);
+    if (settings.musicEnabled) {
+      SoundService.playBGM(settings.lobbyMusicPath);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Listen to music enabled status
+    ref.listen(settingsProvider.select((s) => s.musicEnabled), (
+      previous,
+      next,
+    ) {
+      if (next == true && (previous == false || previous == null)) {
+        _playMusic();
+      } else if (next == false) {
+        SoundService.stopBGM();
+      }
+    });
+
+    // Listen to music path changes
+    ref.listen(settingsProvider.select((s) => s.lobbyMusicPath), (
+      previous,
+      next,
+    ) {
+      if (next != previous) {
+        SoundService.playBGM(next);
+      }
+    });
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -64,7 +103,13 @@ class _MorpionLobbyScreenState extends ConsumerState<MorpionLobbyScreen> {
                           ),
                         ),
                         const Spacer(),
-                        const SizedBox(width: 48),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.help_outline,
+                            color: Colors.white,
+                          ),
+                          onPressed: () => _showRules(),
+                        ),
                       ],
                     ),
                     const Spacer(),
@@ -235,6 +280,82 @@ class _MorpionLobbyScreenState extends ConsumerState<MorpionLobbyScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showRules() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF7B1FA2),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.help_outline, color: Color(0xFFFFD700)),
+            SizedBox(width: 12),
+            Text(
+              'RÈGLES DU MORPION',
+              style: TextStyle(color: Colors.white, fontSize: 18),
+            ),
+          ],
+        ),
+        content: const SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _RuleItem(text: 'Alignez 3 symboles identiques pour gagner.'),
+              _RuleItem(
+                text:
+                    'L\'alignement peut être horizontal, vertical ou diagonal.',
+              ),
+              _RuleItem(
+                text:
+                    'Si la grille est pleine sans alignement, c\'est un match nul.',
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'COMPRIS',
+              style: TextStyle(
+                color: Color(0xFFFFD700),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RuleItem extends StatelessWidget {
+  final String text;
+  const _RuleItem({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '• ',
+            style: TextStyle(color: Color(0xFFFFD700), fontSize: 18),
+          ),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+          ),
+        ],
       ),
     );
   }

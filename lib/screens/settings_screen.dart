@@ -4,13 +4,53 @@ import '../providers/settings_provider.dart';
 import '../services/sound_service.dart';
 import '../models/settings.dart';
 
-class SettingsScreen extends ConsumerWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _playMusic();
+    });
+  }
+
+  void _playMusic() {
+    final settings = ref.read(settingsProvider);
+    SoundService.playBGM(settings.homeMusicPath);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final currentSettings = ref.watch(settingsProvider);
     final notifier = ref.read(settingsProvider.notifier);
+
+    // Also listen to music path changes
+    ref.listen(settingsProvider.select((s) => s.homeMusicPath), (
+      previous,
+      next,
+    ) {
+      if (next != previous) {
+        SoundService.playBGM(next);
+      }
+    });
+
+    // Listen to music enabled status
+    ref.listen(settingsProvider.select((s) => s.musicEnabled), (
+      previous,
+      next,
+    ) {
+      if (next == true && (previous == false || previous == null)) {
+        _playMusic();
+      } else if (next == false) {
+        SoundService.stopBGM();
+      }
+    });
 
     return Scaffold(
       body: Container(

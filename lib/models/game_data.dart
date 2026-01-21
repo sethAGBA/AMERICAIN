@@ -31,7 +31,7 @@ class GameData {
     // Implemented Games
     GameData(
       id: 'americain',
-      title: 'CLASSIC GAMES',
+      title: 'AMERICAIN',
       subtitle: '8 AMÉRICAIN',
       description: 'Le célèbre jeu de cartes stratégique.',
       icon: Icons.style,
@@ -78,10 +78,13 @@ class GameData {
     GameData(
       id: 'dames',
       title: 'Dames',
-      subtitle: 'CLASSIC',
-      description: 'Stratégie intemporelle.',
+      subtitle: 'STRATÉGIE',
+      description: 'Capturez toutes les pièces adverses.',
       icon: Icons.grid_4x4,
       category: GameCategory.classics,
+      isImplemented: true,
+      route: '/dames/lobby',
+      gradientColors: [Color(0xFF8D6E63), Color(0xFF4E342E)],
     ),
     GameData(
       id: 'morpion',
@@ -95,12 +98,51 @@ class GameData {
       gradientColors: [Color(0xFFBA68C8), Color(0xFF7B1FA2)],
     ),
     GameData(
-      id: 'solitaire',
-      title: 'Solitaire',
-      subtitle: 'CLASSIC',
-      description: 'Zen et réflexion.',
-      icon: Icons.style,
+      id: 'puissance4',
+      title: 'Puissance 4',
+      subtitle: 'ALIGNEMENT',
+      description: 'Alignez 4 jetons pour gagner.',
+      icon: Icons.grid_view,
       category: GameCategory.classics,
+      isImplemented: true,
+      route: '/puissance4/lobby',
+      gradientColors: [Color(0xFFD32F2F), Color(0xFFB71C1C)], // Red Theme
+    ),
+    GameData(
+      id: 'pendu',
+      title: 'Le Pendu',
+      subtitle: 'MOTS',
+      description: 'Devinez le mot avant qu\'il ne soit trop tard.',
+      icon: Icons.abc,
+      category: GameCategory.classics,
+      isImplemented: true,
+      route: '/pendu',
+      gradientColors: [
+        Color(0xFF263238),
+        Color(0xFF37474F),
+      ], // Blackboard Theme
+    ),
+    GameData(
+      id: 'memory',
+      title: 'Memory',
+      subtitle: 'MÉMOIRE',
+      description: 'Retrouvez toutes les paires.',
+      icon: Icons.psychology,
+      category: GameCategory.classics,
+      isImplemented: true,
+      route: '/memory/lobby',
+      gradientColors: [Color(0xFF4A148C), Color(0xFF311B92)],
+    ),
+    GameData(
+      id: 'chifoumi',
+      title: 'Chifoumi',
+      subtitle: 'PIERRE PAPIER CISEAUX',
+      description: 'Le duel ancestral en un geste.',
+      icon: Icons.front_hand,
+      category: GameCategory.classics,
+      isImplemented: true,
+      route: '/chifoumi/lobby',
+      gradientColors: [const Color(0xFF4A148C), const Color(0xFF311B92)],
     ),
 
     // Strategy
@@ -108,9 +150,12 @@ class GameData {
       id: 'echecs',
       title: 'Échecs',
       subtitle: 'STRATEGY',
-      description: 'Maîtrisez l\'art de la guerre.',
+      description: 'Le roi des jeux de stratégie.',
       icon: Icons.extension,
       category: GameCategory.strategy,
+      isImplemented: true,
+      route: '/chess/lobby',
+      gradientColors: [Color(0xFF3E2723), Color(0xFF1B1B1B)],
     ),
     GameData(
       id: 'othello',
@@ -119,6 +164,9 @@ class GameData {
       description: 'Inversez la situation.',
       icon: Icons.radio_button_checked,
       category: GameCategory.strategy,
+      isImplemented: true,
+      route: '/othello/lobby',
+      gradientColors: [Color(0xFF1B5E20), Color(0xFF000000)],
     ),
     GameData(
       id: 'sudoku',
@@ -127,6 +175,9 @@ class GameData {
       description: 'Le roi du puzzle numérique.',
       icon: Icons.numbers,
       category: GameCategory.strategy,
+      isImplemented: true,
+      route: '/sudoku/lobby',
+      gradientColors: [Color(0xFF1A237E), Color(0xFF0D47A1)],
     ),
 
     // Cultural
@@ -137,6 +188,10 @@ class GameData {
       description: 'La perle d\'Afrique de l\'Ouest.',
       icon: Icons.stars,
       category: GameCategory.cultural,
+      isImplemented: true,
+      route: '/dara/lobby',
+      iconPath: 'assets/icon/dara.png',
+      gradientColors: [Color(0xFF8D6E63), Color(0xFF4E342E)],
     ),
     GameData(
       id: 'fanorona',
@@ -145,6 +200,9 @@ class GameData {
       description: 'Le génie malgache.',
       icon: Icons.diamond,
       category: GameCategory.cultural,
+      isImplemented: true,
+      route: '/fanorona/lobby',
+      gradientColors: [Color(0xFF8D6E63), Color(0xFF4E342E)],
     ),
 
     // Cards
@@ -171,6 +229,17 @@ class GameData {
       description: 'Le jeu du Trouduc.',
       icon: Icons.military_tech,
       category: GameCategory.cards,
+    ),
+    GameData(
+      id: 'solitaire',
+      title: 'Solitaire',
+      subtitle: 'KLONDIKE',
+      description: 'Le classique du jeu de patience.',
+      icon: Icons.style,
+      category: GameCategory.cards,
+      route: '/solitaire/lobby',
+      isImplemented: true,
+      gradientColors: [const Color(0xFF2E7D32), const Color(0xFF1B5E20)],
     ),
   ];
 

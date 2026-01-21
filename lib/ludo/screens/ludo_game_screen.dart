@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:confetti/confetti.dart';
+import '../../providers/stats_provider.dart';
 import '../providers/ludo_provider.dart';
 import '../models/ludo_piece.dart';
 import '../models/ludo_player.dart';
@@ -9,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import '../widgets/ludo_dice.dart';
 import '../../services/sound_service.dart';
 import '../../widgets/generic_pattern.dart';
+import '../../providers/settings_provider.dart';
 
 class LudoGameScreen extends ConsumerStatefulWidget {
   const LudoGameScreen({super.key});
@@ -19,6 +22,32 @@ class LudoGameScreen extends ConsumerStatefulWidget {
 
 class _LudoGameScreenState extends ConsumerState<LudoGameScreen> {
   bool _isRolling = false;
+  late ConfettiController _confettiController;
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 3),
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _playMusic();
+    });
+  }
+
+  void _playMusic() {
+    final settings = ref.read(settingsProvider);
+    if (settings.musicEnabled) {
+      SoundService.playBGM(settings.gameMusicPath, volume: 0.3);
+    }
+  }
+
+  @override
+  void dispose() {
+    SoundService.stopBGM();
+    _confettiController.dispose();
+    super.dispose();
+  }
 
   Future<void> _handleRoll() async {
     if (_isRolling) return;
@@ -42,10 +71,80 @@ class _LudoGameScreenState extends ConsumerState<LudoGameScreen> {
     }
   }
 
+  void _showExitConfirmation() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF0D47A1),
+        title: const Text(
+          'Quitter la partie ?',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          'Êtes-vous sûr de vouloir quitter ? Votre progression sera sauvegardée.',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'ANNULER',
+              style: TextStyle(color: Colors.white60),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade700,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pop(context); // Close dialog
+              ref.read(ludoProvider.notifier).leaveGame();
+              context.go('/ludo'); // Go back to start
+            },
+            child: const Text('QUITTER'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final gameState = ref.watch(ludoProvider);
+
+    // Listen to music enabled status
+    ref.listen(settingsProvider.select((s) => s.musicEnabled), (
+      previous,
+      next,
+    ) {
+      if (next == true && (previous == false || previous == null)) {
+        _playMusic();
+      } else if (next == false) {
+        SoundService.stopBGM();
+      }
+    });
+
+    // Listen to music path changes
+    ref.listen(settingsProvider.select((s) => s.gameMusicPath), (
+      previous,
+      next,
+    ) {
+      if (next != previous) {
+        SoundService.playBGM(next, volume: 0.3);
+      }
+    });
     // For now, assume single device multiplayer or always enable touches if it's "current player"
+
+    // Listen for game finished
+    ref.listen(ludoProvider.select((s) => s.turnState), (previous, next) {
+      if (next == LudoTurnState.finished &&
+          previous != LudoTurnState.finished) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showWinnerDialog(context, gameState);
+        });
+      }
+    });
 
     final canRoll =
         gameState.turnState == LudoTurnState.waitingForRoll && !_isRolling;
@@ -81,6 +180,22 @@ class _LudoGameScreenState extends ConsumerState<LudoGameScreen> {
                 crossAxisCount: 8,
               ),
             ),
+            Align(
+              alignment: Alignment.topCenter,
+              child: ConfettiWidget(
+                confettiController: _confettiController,
+                blastDirectionality: BlastDirectionality.explosive,
+                shouldLoop: false,
+                colors: const [
+                  Colors.green,
+                  Colors.blue,
+                  Colors.pink,
+                  Colors.orange,
+                  Colors.purple,
+                  Colors.yellow,
+                ],
+              ),
+            ),
             Column(
               children: [
                 SafeArea(
@@ -107,10 +222,7 @@ class _LudoGameScreenState extends ConsumerState<LudoGameScreen> {
                             Icons.exit_to_app,
                             color: Colors.white,
                           ),
-                          onPressed: () {
-                            ref.read(ludoProvider.notifier).leaveGame();
-                            context.go('/ludo'); // Go back to start
-                          },
+                          onPressed: _showExitConfirmation,
                           tooltip: 'Quitter la partie',
                         ),
                       ],
@@ -195,6 +307,24 @@ class _LudoGameScreenState extends ConsumerState<LudoGameScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  // Undo Button
+                                  if (gameState.currentPlayer.type ==
+                                          PlayerType.human &&
+                                      gameState.diceValues.isNotEmpty) ...[
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.replay,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () {
+                                        ref
+                                            .read(ludoProvider.notifier)
+                                            .undoTurn();
+                                      },
+                                      tooltip: 'Annuler et Relancer',
+                                    ),
+                                    const SizedBox(width: 8),
+                                  ],
                                   ...List.generate(
                                     gameState.diceValues.length,
                                     (index) {
@@ -333,5 +463,62 @@ class _LudoGameScreenState extends ConsumerState<LudoGameScreen> {
       case LudoColor.blue:
         return Colors.blue.shade700;
     }
+  }
+
+  void _showWinnerDialog(BuildContext context, LudoGameState state) {
+    if (state.winners.isEmpty) return;
+
+    _confettiController.play();
+    final winnerColor = state.winners.first;
+
+    // Check if "User" (Red/Player 0) won
+    // Assuming user is always Red in this simple version or explicit mapping needed
+    // If Red is human and Red won -> Win
+    final userWon = winnerColor == LudoColor.red; // Simplified assumption
+
+    if (userWon) {
+      ref.read(statsControllerProvider.notifier).recordWin('ludo');
+    } else {
+      ref.read(statsControllerProvider.notifier).recordLoss('ludo');
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('🎉 Partie terminée !'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Les ${winnerColor.frenchName} ont gagné !',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            if (userWon)
+              const Text(
+                'Bravo, vous avez gagné !',
+                style: TextStyle(color: Colors.green),
+              )
+            else
+              const Text(
+                'Dommage, une prochaine fois !',
+                style: TextStyle(color: Colors.red),
+              ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              _confettiController.stop();
+              ref.read(ludoProvider.notifier).leaveGame();
+              context.go('/ludo');
+            },
+            child: const Text('Retour au menu'),
+          ),
+        ],
+      ),
+    );
   }
 }

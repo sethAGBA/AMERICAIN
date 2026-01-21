@@ -1,4 +1,7 @@
- Jeux faciles à ajouter (rapides à développer)
+
+⸻
+
+🎯 Jeux faciles à ajouter (rapides à développer)
 
 Idéals si tu veux élargir vite ton catalogue.
 	1.	Dames (Checkers)
@@ -84,4 +87,18 @@ Vu ton profil et ce que tu as déjà fait :
 2️⃣ Dames
 3️⃣ Whot (ou Président)
 
-👉 Tu peux créer une suite “Classic Games” :
+⸻
+
+⚡️ Suggestions d'Antigravity (Bonus Rapides)
+
+Pour aller encore plus vite sans toucher à ta liste :
+- **Puissance 4** : Logique proche du Morpion mais avec de la gravité.
+- **Le Pendu** : Très simple, idéal pour le casual gaming.
+- **Memory Game** : Parfait pour utiliser tes icônes.
+- **Chifoumi** : Le plus rapide (env. 20 min).
+
+Puissance 4 : Très rapide car proche du Morpion mais avec de la gravité.
+Le Pendu : Simple, sans IA, parfait pour le casual gaming.
+Memory Game : Idéal pour utiliser tes icônes et facile à coder.
+Chifoumi (Rock Paper Scissors) : Le plus rapide de tous (env. 20 min).
+J'ai 

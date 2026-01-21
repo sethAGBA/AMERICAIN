@@ -13,12 +13,34 @@ import 'screens/other_games_screen.dart';
 import 'widgets/main_scaffold.dart';
 import 'domino/screens/domino_game_screen.dart';
 import 'domino/screens/domino_lobby_screen.dart';
+import 'dames/screens/dames_game_screen.dart';
+import 'dames/screens/dames_lobby_screen.dart';
 import 'ludo/screens/ludo_game_screen.dart';
 import 'ludo/screens/ludo_lobby_screen.dart';
 import 'awale/screens/awale_game_screen.dart';
 import 'awale/screens/awale_lobby_screen.dart';
 import 'morpion/screens/morpion_game_screen.dart';
 import 'morpion/screens/morpion_lobby_screen.dart';
+import 'puissance4/screens/puissance4_game_screen.dart';
+import 'puissance4/screens/puissance4_lobby_screen.dart';
+import 'solitaire/screens/solitaire_game_screen.dart';
+import 'solitaire/screens/solitaire_lobby_screen.dart';
+import 'chifoumi/screens/chifoumi_game_screen.dart';
+import 'chifoumi/screens/chifoumi_lobby_screen.dart';
+import 'pendu/screens/pendu_game_screen.dart';
+import 'memory/screens/memory_game_screen.dart';
+import 'memory/screens/memory_lobby_screen.dart';
+import 'fanorona/screens/fanorona_game_screen.dart';
+import 'fanorona/screens/fanorona_lobby_screen.dart';
+import 'sudoku/screens/sudoku_game_screen.dart';
+import 'sudoku/screens/sudoku_lobby_screen.dart';
+import 'chess/screens/chess_game_screen.dart';
+import 'chess/screens/chess_lobby_screen.dart';
+import 'othello/screens/othello_game_screen.dart';
+import 'othello/screens/othello_lobby_screen.dart';
+import 'dara/screens/dara_game_screen.dart';
+import 'dara/screens/dara_lobby_screen.dart';
+import 'screens/profile_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -99,7 +121,7 @@ final _router = GoRouter(
               path: '/americain',
               builder: (context, state) => const HomeScreen(
                 gameId: 'americain',
-                title: 'CLASSIC GAMES',
+                title: 'AMERICAIN',
                 subtitle: '8 AMÉRICAIN & MORE',
               ),
             ),
@@ -190,12 +212,100 @@ final _router = GoRouter(
       builder: (context, state) => const MorpionGameScreen(),
     ),
     GoRoute(
+      path: '/dames/lobby',
+      builder: (context, state) => const DamesLobbyScreen(),
+    ),
+    GoRoute(
+      path: '/dames/game',
+      builder: (context, state) => const DamesGameScreen(),
+    ),
+    GoRoute(
       path: '/dominos/lobby',
       builder: (context, state) => const DominoLobbyScreen(),
     ),
     GoRoute(
       path: '/dominos/game',
       builder: (context, state) => const DominoGameScreen(),
+    ),
+    GoRoute(
+      path: '/puissance4/lobby',
+      builder: (context, state) => const Puissance4LobbyScreen(),
+    ),
+    GoRoute(
+      path: '/puissance4/game',
+      builder: (context, state) => const Puissance4GameScreen(),
+    ),
+    GoRoute(
+      path: '/solitaire/lobby',
+      builder: (context, state) => const SolitaireLobbyScreen(),
+    ),
+    GoRoute(
+      path: '/solitaire/game',
+      builder: (context, state) => const SolitaireGameScreen(),
+    ),
+    GoRoute(
+      path: '/chifoumi/lobby',
+      builder: (context, state) => const ChifoumiLobbyScreen(),
+    ),
+    GoRoute(
+      path: '/chifoumi/game',
+      builder: (context, state) => const ChifoumiGameScreen(),
+    ),
+    GoRoute(
+      path: '/pendu',
+      builder: (context, state) => const PenduGameScreen(),
+    ),
+    GoRoute(
+      path: '/memory/lobby',
+      builder: (context, state) => const MemoryLobbyScreen(),
+    ),
+    GoRoute(
+      path: '/memory/game',
+      builder: (context, state) => const MemoryGameScreen(),
+    ),
+    GoRoute(
+      path: '/fanorona/lobby',
+      builder: (context, state) => const FanoronaLobbyScreen(),
+    ),
+    GoRoute(
+      path: '/fanorona/game',
+      builder: (context, state) => const FanoronaGameScreen(),
+    ),
+    GoRoute(
+      path: '/sudoku/lobby',
+      builder: (context, state) => const SudokuLobbyScreen(),
+    ),
+    GoRoute(
+      path: '/sudoku/game',
+      builder: (context, state) => const SudokuGameScreen(),
+    ),
+    GoRoute(
+      path: '/chess/lobby',
+      builder: (context, state) => const ChessLobbyScreen(),
+    ),
+    GoRoute(
+      path: '/chess/game',
+      builder: (context, state) => const ChessGameScreen(),
+    ),
+    GoRoute(
+      path: '/othello/lobby',
+      builder: (context, state) => const OthelloLobbyScreen(),
+    ),
+    GoRoute(
+      path: '/othello/game',
+      builder: (context, state) => const OthelloGameScreen(),
+    ),
+    GoRoute(
+      path: '/dara/lobby',
+      builder: (context, state) => const DaraLobbyScreen(),
+    ),
+    GoRoute(
+      path: '/dara/game',
+      builder: (context, state) => const DaraGameScreen(),
+    ),
+    GoRoute(
+      path: '/profile',
+      builder: (context, state) => const ProfileScreen(),
     ),
   ],
 );
